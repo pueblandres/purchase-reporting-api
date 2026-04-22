@@ -1,37 +1,26 @@
 spring:
   application:
     name: purchase-reporting-api
-  profiles:
-    default: local
-
-  # Configuración inicial Oracle (descomentar y ajustar)
-  # datasource:
-  #   url: jdbc:oracle:thin:@//localhost:1521/XEPDB1
-  #   username: APP_USER
-  #   password: APP_PASSWORD
-  #   driver-class-name: oracle.jdbc.OracleDriver
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/XEPDB1
+    username: purchase_user
+    password: purchase_pass
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.OracleDialect
 
 mybatis:
-  # Configuración base inicial MyBatis
-  # mapper-locations: classpath:/mappers/**/*.xml
-  # type-aliases-package: com.example.purchasereportingapi.domain
-  configuration:
-    map-underscore-to-camel-case: true
-    default-fetch-size: 100
-    default-statement-timeout: 30
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.purchasereportingapi.report
 
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
-    operations-sorter: alpha
-    tags-sorter: alpha
-
-logging:
-  level:
-    root: INFO
-    com.example.purchasereportingapi: INFO
-
-server:
-  port: 8080

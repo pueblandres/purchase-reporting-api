@@ -1,95 +1,55 @@
 package com.example.purchasereportingapi.exception;
 
-import com.example.purchasereportingapi.dto.error.ErrorResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.OffsetDateTime;
-import java.util.List;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final String VALIDATION_ERROR = "Validation error";
-    private static final String CONSTRAINT_VIOLATION = "Constraint violation";
-    private static final String MALFORMED_REQUEST_BODY = "Malformed request body";
-    private static final String INTERNAL_ERROR = "Unexpected internal error";
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(baseError(HttpStatus.NOT_FOUND, ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiErrorResponse> handleBusiness(BusinessException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(baseError(HttpStatus.BAD_REQUEST, ex.getMessage(), null));
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
-            MethodArgumentNotValidException ex,
-            HttpServletRequest request
-    ) {
-        List<String> details = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .toList();
+    public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> validationMap = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage,
+                        (previous, current) -> current));
 
-        ErrorResponse response = buildErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                VALIDATION_ERROR,
-                request.getRequestURI(),
-                details
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(
-            ConstraintViolationException ex,
-            HttpServletRequest request
-    ) {
-        List<String> details = ex.getConstraintViolations().stream()
-                .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
-                .toList();
-
-        ErrorResponse response = buildErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                CONSTRAINT_VIOLATION,
-                request.getRequestURI(),
-                details
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleMessageNotReadableException(
-            HttpMessageNotReadableException ex,
-            HttpServletRequest request
-    ) {
-        ErrorResponse response = buildErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                MALFORMED_REQUEST_BODY,
-                request.getRequestURI(),
-                List.of(ex.getMostSpecificCause().getMessage())
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(baseError(HttpStatus.BAD_REQUEST, "Error de validación", validationMap));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
-        ErrorResponse response = buildErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                INTERNAL_ERROR,
-                request.getRequestURI(),
-                List.of("Contact support with timestamp and trace information")
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(baseError(HttpStatus.INTERNAL_SERVER_ERROR, "Error inesperado", null));
     }
 
-    private ErrorResponse buildErrorResponse(HttpStatus status, String message, String path, List<String> details) {
-        return new ErrorResponse(
-                OffsetDateTime.now(),
-                status.value(),
-                status.getReasonPhrase(),
-                message,
-                path,
-                details
-        );
+    private ApiErrorResponse baseError(HttpStatus status, String message, Map<String, String> validations) {
+        return ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .message(message)
+                .validations(validations)
+                .build();
     }
 }
