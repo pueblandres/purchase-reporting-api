@@ -1,6 +1,8 @@
 spring:
   application:
     name: purchase-reporting-api
+  profiles:
+    default: local
 
   # Configuración inicial Oracle (descomentar y ajustar)
   # datasource:
@@ -23,6 +25,13 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+logging:
+  level:
+    root: INFO
+    com.example.purchasereportingapi: INFO
 
 server:
   port: 8080

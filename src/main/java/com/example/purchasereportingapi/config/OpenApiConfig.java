@@ -15,9 +15,11 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Purchase Reporting API")
-                        .description("API base para reportes de compras")
+                        .description("API de reportes de compras")
                         .version("v1")
-                        .contact(new Contact().name("Equipo Backend"))
+                        .contact(new Contact()
+                                .name("Equipo Backend")
+                                .email("backend@company.local"))
                         .license(new License().name("Uso interno")));
     }
 }
