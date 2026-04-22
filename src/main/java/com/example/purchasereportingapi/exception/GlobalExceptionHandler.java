@@ -16,6 +16,11 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String VALIDATION_ERROR = "Validation error";
+    private static final String CONSTRAINT_VIOLATION = "Constraint violation";
+    private static final String MALFORMED_REQUEST_BODY = "Malformed request body";
+    private static final String INTERNAL_ERROR = "Unexpected internal error";
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex,
@@ -27,7 +32,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                "Validation error",
+                VALIDATION_ERROR,
                 request.getRequestURI(),
                 details
         );
@@ -45,7 +50,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                "Constraint violation",
+                CONSTRAINT_VIOLATION,
                 request.getRequestURI(),
                 details
         );
@@ -59,7 +64,7 @@ public class GlobalExceptionHandler {
     ) {
         ErrorResponse response = buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                "Malformed request body",
+                MALFORMED_REQUEST_BODY,
                 request.getRequestURI(),
                 List.of(ex.getMostSpecificCause().getMessage())
         );
@@ -70,9 +75,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         ErrorResponse response = buildErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Unexpected internal error",
+                INTERNAL_ERROR,
                 request.getRequestURI(),
-                List.of(ex.getMessage() == null ? "No additional details" : ex.getMessage())
+                List.of("Contact support with timestamp and trace information")
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
