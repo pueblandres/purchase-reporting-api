@@ -70,6 +70,36 @@ spring:
     password: purchase_pass
 ```
 
+## Carga masiva de datos para pruebas
+
+Incluye un script Oracle para poblar la base con datos aleatorios de prueba:
+
+```bash
+sql / as sysdba
+-- o con tu usuario de app
+@scripts/load_test_data_oracle.sql
+```
+
+Parámetros configurables antes de ejecutar:
+
+- `RESET_DATA` (`Y`/`N`): limpia tablas antes de cargar.
+- `NUM_USERS`: cantidad de usuarios.
+- `NUM_PRODUCTS`: cantidad de productos.
+- `NUM_PURCHASES`: cantidad de compras.
+- `PURCHASE_DAYS_BACK`: ventana de días hacia atrás para fechas de compra.
+- `MAX_ITEMS_PER_PURCHASE`: máximo de ítems por compra.
+- `MAX_QTY_PER_ITEM`: cantidad máxima por ítem.
+
+Ejemplo de carga grande:
+
+```sql
+DEFINE NUM_USERS = 5000
+DEFINE NUM_PRODUCTS = 1200
+DEFINE NUM_PURCHASES = 80000
+DEFINE MAX_ITEMS_PER_PURCHASE = 8
+@scripts/load_test_data_oracle.sql
+```
+
 ## Ejecutar
 
 ```bash
