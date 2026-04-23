@@ -127,6 +127,17 @@ public class GlobalExceptionHandler {
                 null);
     }
 
+    @ExceptionHandler(ReportGenerationException.class)
+    public ResponseEntity<ApiErrorResponse> handleReportGeneration(ReportGenerationException ex,
+                                                                  HttpServletRequest request) {
+        return buildResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                ex.getMessage(),
+                request.getRequestURI(),
+                null);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex, HttpServletRequest request) {
         return buildResponse(
