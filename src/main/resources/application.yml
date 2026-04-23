@@ -1,11 +1,13 @@
 spring:
   application:
     name: purchase-reporting-api
+
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/XEPDB1
+    url: jdbc:oracle:thin:@//localhost:1521/XEPDB1
     username: purchase_user
     password: purchase_pass
     driver-class-name: oracle.jdbc.OracleDriver
+
   jpa:
     hibernate:
       ddl-auto: update
