@@ -21,6 +21,8 @@
         <springdoc.version>2.6.0</springdoc.version>
         <jasperreports.version>6.21.3</jasperreports.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
     </properties>
 
     <dependencies>

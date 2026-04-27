@@ -3,6 +3,7 @@ package com.example.purchasereportingapi.service.impl;
 import com.example.purchasereportingapi.dto.request.CreateProductRequest;
 import com.example.purchasereportingapi.dto.response.ProductResponse;
 import com.example.purchasereportingapi.entity.Product;
+import com.example.purchasereportingapi.exception.BusinessException;
 import com.example.purchasereportingapi.exception.ResourceNotFoundException;
 import com.example.purchasereportingapi.mapper.EntityMapper;
 import com.example.purchasereportingapi.repository.ProductRepository;
@@ -19,6 +20,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse create(CreateProductRequest request) {
+        if (request.getPrice() == null || request.getPrice().signum() <= 0) {
+            throw new BusinessException("El precio debe ser mayor a 0");
+        }
+
         Product product = Product.builder()
                 .name(request.getName())
                 .price(request.getPrice())

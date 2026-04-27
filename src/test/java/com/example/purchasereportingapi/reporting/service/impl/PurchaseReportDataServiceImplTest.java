@@ -101,4 +101,22 @@ class PurchaseReportDataServiceImplTest {
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("La fecha desde no puede ser posterior a la fecha hasta");
     }
+
+    @Test
+    void shouldReturnEmptyRowsAndZeroSummaryWhenThereIsNoData() {
+        PurchasesBetweenReportRequest request = new PurchasesBetweenReportRequest(
+                LocalDateTime.of(2026, 5, 1, 0, 0),
+                LocalDateTime.of(2026, 5, 31, 23, 59, 59));
+
+        when(purchaseService.findBetweenDates(request.startDate(), request.endDate()))
+                .thenReturn(List.of());
+
+        PurchasesBetweenReportData reportData = purchaseReportDataService.getPurchasesBetween(request);
+
+        assertThat(reportData.getRows()).isEmpty();
+        assertThat(reportData.getSummary().getPurchaseCount()).isEqualTo(0L);
+        assertThat(reportData.getSummary().getTotalItems()).isZero();
+        assertThat(reportData.getSummary().getTotalAmount()).isEqualByComparingTo("0");
+        assertThat(reportData.getSummary().getAverageAmount()).isEqualByComparingTo("0");
+    }
 }

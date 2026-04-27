@@ -3,6 +3,7 @@ package com.example.purchasereportingapi.service.impl;
 import com.example.purchasereportingapi.dto.request.CreateUserRequest;
 import com.example.purchasereportingapi.dto.response.UserResponse;
 import com.example.purchasereportingapi.entity.User;
+import com.example.purchasereportingapi.exception.BusinessException;
 import com.example.purchasereportingapi.exception.ResourceNotFoundException;
 import com.example.purchasereportingapi.mapper.EntityMapper;
 import com.example.purchasereportingapi.repository.UserRepository;
@@ -19,6 +20,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse create(CreateUserRequest request) {
+        userRepository.findByEmail(request.getEmail())
+                .ifPresent(existingUser -> {
+                    throw new BusinessException("Ya existe un usuario con email: " + request.getEmail());
+                });
+
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())

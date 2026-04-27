@@ -7,6 +7,7 @@ import com.example.purchasereportingapi.entity.Product;
 import com.example.purchasereportingapi.entity.Purchase;
 import com.example.purchasereportingapi.entity.PurchaseItem;
 import com.example.purchasereportingapi.entity.User;
+import com.example.purchasereportingapi.exception.BusinessException;
 import com.example.purchasereportingapi.exception.ResourceNotFoundException;
 import com.example.purchasereportingapi.mapper.EntityMapper;
 import com.example.purchasereportingapi.repository.ProductRepository;
@@ -30,6 +31,10 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional
     public PurchaseResponse create(CreatePurchaseRequest request) {
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new BusinessException("La compra debe tener al menos un producto");
+        }
+
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + request.getUserId()));
 
